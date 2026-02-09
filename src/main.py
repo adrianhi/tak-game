@@ -4,7 +4,6 @@ from board import TakBoard
 import time
 
 def main():
-    # 1. Mensaje de bienvenida
     #bienvenida()
     
     # 2. Solicitar nombres de jugadores
