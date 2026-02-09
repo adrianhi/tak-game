@@ -1,32 +1,33 @@
 from bienvenida import bienvenida
-from Menu_Tak import pedir_nombres, menu_principal, jugar_nuevamente, pedir_tamano
+from Menu_Tak import pedir_nombres, menu_principal, jugar_nuevamente
 from board import TakBoard
 import time
 
 def main():
     # 1. Mensaje de bienvenida
-    bienvenida()
+    #bienvenida()
     
     # 2. Solicitar nombres de jugadores
     jugador1, jugador2 = pedir_nombres()
-
+    
+    
+    
     while True:
         # 3. Menú Principal
         opcion = menu_principal()
         
         if opcion == 1: # Jugar
             # Solicitar tamaño del tablero
-            tamano = pedir_tamano()
-            print(f"\n¡Comenzando el juego entre {jugador1} y {jugador2} en un tablero de {tamano}x{tamano}!\n")
+            print(f"\n¡Comenzando el juego entre {jugador1} y {jugador2} en un tablero de 5x5!\n")
             
             # Inicializar tablero
-            board = TakBoard(size=tamano)
+            board = TakBoard(size=5)
             
             # Loop simple de demostración del juego
             game_running = True
             while game_running:
                 board.display_board()
-                print(f"Turno de: {'Blancas ({jugador1})' if board.current_player == 'white' else 'Negras ({jugador2})'}")
+                print(f"Turno de: {'Blancas ⬛' if board.current_player == 'white' else 'Negras ⬜'}")
                 print("Escribe una posición (fila,columna) para colocar una piedra plana (ej. 2,2) o 'salir' para volver al menú.")
                 
                 move = input("Movimiento: ").strip().lower()
@@ -55,6 +56,10 @@ def main():
                          col_idx = c - 1
                          if board.place_piece(row_idx, col_idx, 'F'):
                              print("Pieza colocada.")
+                             if board.winner:
+                                 board.display_board()
+                                 print(f"\n¡JUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
+                                 game_running = False
                          else:
                              print("Casilla ocupada.")
                     else:

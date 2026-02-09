@@ -10,24 +10,6 @@ def pedir_nombres():
     
     return jugador1, jugador2
 
-def pedir_tamano():
-    while True:
-        print("\n=== SELECCIÓN DE TAMAÑO DE TABLERO ===")
-        print("Elige el tamaño del tablero:")
-        print("1. 3x3")
-        print("2. 4x4")
-        print("3. 5x5")
-        
-        opcion = input("Selecciona una opción (1-3): ").strip()
-        
-        if opcion == "1":
-            return 3
-        elif opcion == "2":
-            return 4
-        elif opcion == "3":
-            return 5
-        else:
-            print("Opción inválida. Por favor ingresa 1, 2 o 3.")
 
 def menu_principal():
     while True:

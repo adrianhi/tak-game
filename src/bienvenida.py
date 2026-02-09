@@ -3,7 +3,7 @@ import time
 def pausa(segundos=1):
     time.sleep(segundos)
 
-def imprimir_lento(texto, velocidad=0.02):
+def imprimir_lento(texto, velocidad=0.01):
     for letra in texto:
         print(letra, end="", flush=True)
         time.sleep(velocidad)
@@ -21,16 +21,16 @@ def bienvenida():
     print("-" * 70)
 
     reglas = [
-        "1. TABLERO: Se juega en un tablero cuadrado (3x3, 4x4, 5x5).",
-        "2. PIEZAS: Cada jugador tiene piezas planas, muros (de pie) y una pieza especial llamada Capstone.",
+       "1. TABLERO: Se juega en un tablero cuadrado (5x5).",
+        "2. PIEZAS: Cada jugador tiene piezas planas, muros (de pie) y una pieza especial llamada Piedra Angular.",
         "3. OBJETIVO PRINCIPAL: Formar un camino continuo desde un borde del tablero al borde opuesto.",
         "4. TURNOS: En cada turno puedes hacer UNA de estas acciones:",
         "   a) Colocar una pieza en una casilla vacía.",
         "   b) Mover una pila de piezas propias (puedes dejar piezas en casillas intermedias).",
         "5. APILAMIENTO: Las piezas se pueden apilar formando torres. Solo la pieza superior controla la casilla.",
-        "6. MUROS: Los muros bloquean caminos, pero pueden ser aplastados por una Capstone.",
-        "7. CAPSTONE: Puede aplastar un muro al moverse sobre él, convirtiéndolo en pieza plana.",
-        "8. CONTROL: Solo las piezas planas y Capstones cuentan para formar caminos.",
+        "6. MUROS: Los muros bloquean caminos, pero pueden ser aplastados por una Angular.",
+        "7. Piedra Angular: Puede aplastar un muro al moverse sobre él, convirtiéndolo en pieza plana.",
+        "8. CONTROL: Solo las piezas planas y Piedras Angulares cuentan para formar caminos.",
         "9. FINAL DEL JUEGO: El juego termina cuando:",
         "   - Un jugador completa un camino (Road Win).",
         "   - Se llenan todas las casillas o se acaban las piezas (Flat Win).",
