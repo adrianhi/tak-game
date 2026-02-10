@@ -199,11 +199,11 @@ class TakBoard:
         while True:
             print("\n¿Qué pila quieres mover?")
             print("Formato: fila,columna (ejemplo: 3,2)")
-            print("Escribe 'cancelar' para volver")
+            print("Escribe '0' para volver")
             
             position = input("Posición: ").strip().lower()
             
-            if position == 'cancelar':
+            if position == '0':
                 return None
             
             # Validar formato
@@ -254,11 +254,11 @@ class TakBoard:
             print("  2. Abajo (↓)")
             print("  3. Izquierda (←)")
             print("  4. Derecha (→)")
-            print("Escribe 'cancelar' para volver")
+            print("Escribe '0' para volver")
             
             choice = input("\nElige una opción: ").strip().lower()
             
-            if choice == 'cancelar':
+            if choice == '0':
                 return None
             
             if choice == '1':
@@ -287,11 +287,11 @@ class TakBoard:
         
         while True:
             print("\n¿Cuántas fichas quieres levantar?")
-            print("Escribe 'cancelar' para volver")
+            print("Escribe '0' para volver")
             
             pickup_input = input("Cantidad: ").strip().lower()
             
-            if pickup_input == 'cancelar':
+            if pickup_input == '0':
                 return None
             
             try:
@@ -324,10 +324,10 @@ class TakBoard:
         print(f"O simplemente: {pickup_count} (dejas todas en la última casilla)")
         
         while True:
-            print("\nEscribe 'cancelar' para volver")
+            print("\nEscribe '0' para volver")
             distribution_input = input("Distribución: ").strip().lower()
             
-            if distribution_input == 'cancelar':
+            if distribution_input == '0':
                 return None
             
             try:

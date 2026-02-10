@@ -25,12 +25,11 @@ def run_verification():
     inputs = [
         "JugadorUno", "JugadorDos", # Names
         "1",                        # Play
-        "3",                        # Board Size (5x5)
-        "3,3",                      # Move (center)
-        "salir",                    # Stop Playing
-        "3",                        # Change Names
-        "NuevoUno", "NuevoDos",     # New Names
-        "2"                         # Exit
+        # Main.py does NOT ask for board size anymore, it hardcodes 5
+        "2",                        # Action: Move Stack (will prompt for position)
+        "0",                        # Position: '0' to Cancel (Testing our change)
+        "0",                        # Action: Exit Game Loop
+        "2"                         # Menu: Exit
     ]
     
     try:
