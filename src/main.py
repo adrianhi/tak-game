@@ -23,50 +23,94 @@ def main():
             # Inicializar tablero
             board = TakBoard(size=5)
             
-            # Loop simple de demostración del juego
             game_running = True
             while game_running:
                 board.display_board()
                 print(f"Turno de: {'Blancas ⬛' if board.current_player == 'white' else 'Negras ⬜'}")
-                print("Escribe una posición (fila,columna) para colocar una piedra plana (ej. 2,2) o 'salir' para volver al menú.")
                 
-                move = input("Movimiento: ").strip().lower()
+                # MENÚ DE ACCIONES
+                print("\n¿Qué acción deseas realizar?")
+                print("  1. Colocar una nueva pieza")
+                print("  2. Mover una pila existente")
+                print("  0. Salir al menú principal")
                 
-                if move == 'salir':
+                action = input("\nElige una opción: ").strip()
+                
+                if action == '0':
                     game_running = False
                     continue
                 
-                try:
-                    r, c = map(int, move.split(','))
-                    # Ajustar a índice 0 (User input 1-5 -> 0-4) si se prefiere, pero board.py ya maneja indices?
-                    # Board display shows 5 at top, 1 at bottom. display_board uses:
-                    # print(f" {self.size - row} │", end="")
-                    # So row 0 is printed as 5. Row 4 is printed as 1.
-                    # Let's assume input is coordinate system matchin visual (row, col) but let's just do direct mapping first for simplicity or stick to the board logic.
-                    # Wait, the board logic in add_demo_pieces uses 0-indexed.
-                    # Let's map user input (1-5) to (4-0) for rows?
-                    # Visual:
-                    # Row 0 -> Label 5
-                    # Row 4 -> Label 1
-                    # So user inputs 5 -> index 0. user inputs 1 -> index 4.
-                    # Index = Size - UserRow
+                elif action == '1':
+                    # COLOCAR PIEZA NUEVA
+                    print("\nEscribe la posición donde quieres colocar (fila,columna)")
+                    move = input("Posición: ").strip()
                     
-                    if 1 <= r <= 5 and 1 <= c <= 5:
-                         row_idx = 5 - r
-                         col_idx = c - 1
-                         if board.place_piece(row_idx, col_idx, 'F'):
-                             print("Pieza colocada.")
-                             if board.winner:
-                                 board.display_board()
-                                 print(f"\n¡JUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
-                                 game_running = False
-                         else:
-                             print("Casilla ocupada.")
-                    else:
-                        print("Coordenadas fuera de rango (1-5).")
+                    try:
+                        r, c = map(int, move.split(','))
                         
-                except ValueError:
-                     print("Entrada inválida. Usa formato: fila,columna")
+                        if 1 <= r <= 5 and 1 <= c <= 5:
+                            row_idx = 5 - r
+                            col_idx = c - 1
+                            
+                            piece_type_user = board.get_piece_type()
+                            
+                            if board.place_piece(row_idx, col_idx, piece_type_user):
+                                print("✅ Pieza colocada.")
+                                if board.winner:
+                                    board.display_board()
+                                    print(f"\n¡JUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
+                                    game_running = False
+                            else:
+                                print("❌ No se pudo colocar la pieza.")
+                        else:
+                            print("❌ Coordenadas fuera de rango (1-5).")
+                            
+                    except ValueError:
+                        print("❌ Entrada inválida. Usa formato: fila,columna")
+                
+                elif action == '2':
+                    # MOVER PILA EXISTENTE
+                    
+                    # Paso 1: Obtener pila a mover
+                    result = board.get_stack_to_move()
+                    
+                    if result is None:
+                        print("Movimiento cancelado.")
+                        continue
+                    
+                    start_row, start_col = result
+                    print(f"✅ Pila seleccionada en ({board.size - start_row},{start_col + 1})")
+                    
+                    # Paso 2: Obtener dirección
+                    direction = board.get_move_direction()
+                    
+                    if direction is None:
+                        print("Movimiento cancelado.")
+                        continue
+                    
+                    print(f"✅ Dirección seleccionada: {direction}")
+                    
+                    # Paso 3: Obtener distribución de fichas
+                    drops = board.get_drops_distribution(start_row, start_col)
+                    
+                    if drops is None:
+                        print("Movimiento cancelado.")
+                        continue
+                    
+                    print(f"✅ Distribución: {drops}")
+                    
+                    # Paso 4: Ejecutar movimiento
+                    if board.move_stack(start_row, start_col, direction, drops):
+                        print("✅ Movimiento realizado exitosamente.")
+                        
+                        # Verificar si hay ganador
+                        if board.winner:
+                            board.display_board()
+                            print(f"\n¡JUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
+                            game_running = False
+                    else:
+                        print("❌ No se pudo realizar el movimiento.")
+            
 
             
         elif opcion == 2: # Salir
