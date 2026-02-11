@@ -10,17 +10,19 @@ def pedir_nombres():
     
     return jugador1, jugador2
 
+
 def menu_principal():
     while True:
         print("\n=== MENÚ PRINCIPAL ===")
         print("1. Jugar")
         print("2. Salir")
+        print("3. Cambiar Nombres")
         
         opcion = input("Selecciona una opción: ").strip()
         
-        # Validación: solo números 1 o 2
-        if opcion not in ["1", "2"]:
-            print("Opción inválida. Por favor ingresa 1 o 2.")
+        # Validación: solo números 1, 2 o 3
+        if opcion not in ["1", "2", "3"]:
+            print("Opción inválida. Por favor ingresa 1, 2 o 3.")
             continue
         
         return int(opcion)
@@ -32,21 +34,3 @@ def jugar_nuevamente():
             return respuesta == "S"
         else:
             print("Respuesta inválida. Ingresa S para sí o N para no.")
-
-# Ejemplo de uso
-jugador1, jugador2 = pedir_nombres()
-
-while True:
-    opcion = menu_principal()
-    
-    if opcion == 1:
-        print(f"\n¡Comenzando el juego entre {jugador1} y {jugador2}!\n")
-        # Aquí se llamaría a la función que inicia el juego de Tak
-        # jugar_tak(jugador1, jugador2)
-    elif opcion == 2:
-        print("Gracias por jugar. ¡Hasta luego!")
-        break
-    
-    if not jugar_nuevamente():
-        print("Gracias por jugar. ¡Hasta luego!")
-        break
