@@ -1,10 +1,10 @@
 def pedir_nombres():
     print("Bienvenidos a Tak!")
-    jugador1 = input("Ingresa el nombre del Jugador 1: ").strip()
+    jugador1 = input("Ingresa el nombre del Jugador 1 (Blancas): ").strip()
     while jugador1 == "":
         jugador1 = input("El nombre no puede estar vacío. Ingresa el nombre del Jugador 1: ").strip()
     
-    jugador2 = input("Ingresa el nombre del Jugador 2: ").strip()
+    jugador2 = input("Ingresa el nombre del Jugador 2 (Negras): ").strip()
     while jugador2 == "" or jugador2 == jugador1:
         jugador2 = input("El nombre no puede estar vacío ni ser igual al Jugador 1. Ingresa el nombre del Jugador 2: ").strip()
     

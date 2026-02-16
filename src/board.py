@@ -134,10 +134,6 @@ class TakBoard:
         print("  ⬛/⬜ = Piedra plana    🏴/🏳️ = Piedra de pie    ⚫/⚪ = Piedra Angular ")
         print("  Número al lado de la pieza indica altura de la pila")
 
-
-    
-        
-    
     def can_place_piece(self, row, col, piece_type='F'):
         """
         Valida si se puede colocar una pieza en la posición dada
@@ -447,26 +443,6 @@ class TakBoard:
                 top_type = top_piece[1]
                 
                 if top_type == 'S': # Standing Stone
-                    # Solo puede ser aplastada por Capstone si es el final del movimiento y viene sola (el capstone es la unica pieza)
-                    # La pieza que va a aterrizar aqui es la ULTIMA de las que se sueltan en este paso.
-                    # El grupo que aterriza es moving_stack[pieces_dropped_so_far : pieces_dropped_so_far + drop_count]
-                    
-                    # Regla Capstone: 
-                    # "Capstone can flatten a standing stone... if it moves onto it."
-                    # "The Capstone must be moving by itself onto the standing stone?" -> Rules say Capstone must be the piece engaging/flattening.
-                    # Usually implemented as: The piece *impacting* the wall must be a Capstone.
-                    # And check if it's the LAST step involving the wall?
-                    # Generally: A wall blocks movement checking unless it is flattened.
-                    # Flattening happens if a Capstone lands on it.
-                    
-                    # Simplified verification for MVP:
-                    # Logic: Is the piece colliding a Capstone?
-                    # The leading piece of the substack being dropped is the bottom-most of that substack? No, stacks stay ordered.
-                    # Moving stack: [Bottom ... Top]. 
-                    # If we have stack [A, B, C] and drop 1 (C), C lands.
-                    # If we drop 2 (B, C), B lands on target, then C on B. So B hits the existing stack first.
-                    
-                    # Verification: The BOTTOM piece of the dropped substack hits the target top.
                     substack = moving_stack[pieces_dropped_so_far : pieces_dropped_so_far + drop_count]
                     striking_piece = substack[0] # The one at the bottom of the held stack segment
                     

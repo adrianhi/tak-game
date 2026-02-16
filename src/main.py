@@ -4,7 +4,7 @@ from board import TakBoard
 import time
 
 def main():
-    #bienvenida()
+    bienvenida()
     
     # 2. Solicitar nombres de jugadores
     jugador1, jugador2 = pedir_nombres()
