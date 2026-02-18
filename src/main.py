@@ -31,13 +31,8 @@ def main():
             while game_running:
                 ui.display_board()
                 
-                # MEN DE ACCIONES
-                print("\nQué acción deseas realizar?")
-                print("  1. Colocar una nueva pieza")
-                print("  2. Mover una pila existente")
-                print("  0. Salir al menú principal")
-                
-                action = input("\nElige una opción: ").strip()
+                # MENÚ DE ACCIONES
+                action = controller.get_game_action()
                 
                 if action == '0':
                     game_running = False
@@ -45,31 +40,22 @@ def main():
                 
                 elif action == '1':
                     # COLOCAR PIEZA NUEVA
-                    print("\nEscribe la posición donde quieres colocar (fila,columna)")
-                    move = input("Posición: ").strip()
+                    pos = controller.get_placement_position()
                     
-                    try:
-                        r, c = map(int, move.split(','))
+                    if pos:
+                        row_idx, col_idx = pos
+                        piece_type_user = controller.get_piece_type()
                         
-                        if 1 <= r <= 5 and 1 <= c <= 5:
-                            row_idx = 5 - r
-                            col_idx = c - 1
-                            
-                            piece_type_user = controller.get_piece_type()
-                            
-                            if board.place_piece(row_idx, col_idx, piece_type_user):
-                                print(" Pieza colocada.")
-                                if board.winner:
-                                    ui.display_board()
-                                    print(f"\nJUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
-                                    game_running = False
-                            else:
-                                print(" No se pudo colocar la pieza.")
+                        success, message = board.place_piece(row_idx, col_idx, piece_type_user)
+                        
+                        if success:
+                            print(f" {message}")
+                            if board.winner:
+                                ui.display_board()
+                                print(f"\nJUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
+                                game_running = False
                         else:
-                            print(" Coordenadas fuera de rango (1-5).")
-                            
-                    except ValueError:
-                        print(" Entrada invlida. Usa formato: fila,columna")
+                             print(f" {message}")
                 
                 elif action == '2':
                     # MOVER PILA EXISTENTE
@@ -103,8 +89,10 @@ def main():
                     print(f" Distribución: {drops}")
                     
                     # Paso 4: Ejecutar movimiento
-                    if board.move_stack(start_row, start_col, direction, drops):
-                        print(" Movimiento realizado exitosamente.")
+                    success, message = board.move_stack(start_row, start_col, direction, drops)
+                    
+                    if success:
+                        print(f" {message}")
                         
                         # Verificar si hay ganador
                         if board.winner:
@@ -112,7 +100,7 @@ def main():
                             print(f"\nJUEGO TERMINADO! Ganador: {board.winner} ({jugador1 if board.winner == 'white' else jugador2})")
                             game_running = False
                     else:
-                        print(" No se pudo realizar el movimiento.")
+                        print(f" {message}")
             
 
             
