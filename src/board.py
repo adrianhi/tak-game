@@ -1,4 +1,5 @@
 from collections import deque
+from copy import deepcopy
 from rules import TakRuleEngine
 
 
@@ -33,7 +34,7 @@ class TakBoard:
 
         self.current_player = "white"
         self.current_player = "white"
-        self.winner = None
+        self.current_player = "white"
 
         # Contador de "plies" (medios turnos).
         # 0 = Turno 1 Blancas, 1 = Turno 1 Negras, 2 = Turno 2 Blancas (Normal)...
@@ -41,6 +42,13 @@ class TakBoard:
 
         # Motor de reglas
         self.rules = TakRuleEngine()
+
+    def clone(self):
+        """
+        Creates a deep copy of the board for simulation (Minimax).
+        Returns a new TakBoard instance with identical state.
+        """
+        return deepcopy(self)
 
     def _get_initial_pieces(self, size):
         """Retorna el número de piedras planas según el tamaño del tablero"""
@@ -346,22 +354,30 @@ class TakBoard:
         return None
 
     def next_turn(self):
-        """Cambia el turno y verifica victoria"""
-        # Verificar victoria por camino primero (puede ocurrir en turno propio)
-        winner = self.check_road_win()
-        if winner:
-            self.winner = winner
-            return f"Ganador por Camino: {winner}"
-
-        # Verificar victoria por flats (full board, etc)
-        flat_winner = self.check_flat_win()
-        if flat_winner:
-            self.winner = flat_winner
-            return f"Ganador por Puntos: {flat_winner}"
-
+        """Cambia el turno e incrementa el contador de ply."""
         self.current_player = "black" if self.current_player == "white" else "white"
         self.ply_count += 1
+
+    def get_winner(self):
+        """
+        Retorna el ganador del juego si existe, o None.
+        Prioridad: Road Win > Flat Win.
+        """
+        # 1. Road Win
+        road_winner = self.check_road_win()
+        if road_winner:
+            return road_winner
+
+        # 2. Flat Win (only if board full or pieces out)
+        flat_winner = self.check_flat_win()
+        if flat_winner:
+            return flat_winner
+
         return None
+
+    def is_terminal(self):
+        """Retorna True si el juego ha terminado."""
+        return self.get_winner() is not None
 
     def add_demo_pieces(self):
         """Añade algunas piezas de demostración al tablero"""
