@@ -1,4 +1,5 @@
 from collections import deque
+from rules import TakRuleEngine
 
 
 class TakBoard:
@@ -20,12 +21,26 @@ class TakBoard:
 
         # Piezas disponibles para cada jugador
         self.pieces = {
-            'white': {'flat': self._get_initial_pieces(size), 'capstones': self._get_capstones(size)},
-            'black': {'flat': self._get_initial_pieces(size), 'capstones': self._get_capstones(size)}
+            "white": {
+                "flat": self._get_initial_pieces(size),
+                "capstones": self._get_capstones(size),
+            },
+            "black": {
+                "flat": self._get_initial_pieces(size),
+                "capstones": self._get_capstones(size),
+            },
         }
 
-        self.current_player = 'white'
+        self.current_player = "white"
+        self.current_player = "white"
         self.winner = None
+
+        # Contador de "plies" (medios turnos).
+        # 0 = Turno 1 Blancas, 1 = Turno 1 Negras, 2 = Turno 2 Blancas (Normal)...
+        self.ply_count = 0
+
+        # Motor de reglas
+        self.rules = TakRuleEngine()
 
     def _get_initial_pieces(self, size):
         """Retorna el número de piedras planas según el tamaño del tablero"""
@@ -49,9 +64,9 @@ class TakBoard:
     def _is_road_piece(self, row, col, player):
         """Retorna True si la pieza superior pertenece al jugador y cuenta para camino."""
         top_piece = self._top_piece(row, col)
-        return bool(top_piece and top_piece[0] == player and top_piece[1] in ['F', 'C'])
+        return bool(top_piece and top_piece[0] == player and top_piece[1] in ["F", "C"])
 
-    def can_place_piece(self, row, col, piece_type='F'):
+    def can_place_piece(self, row, col, piece_type="F"):
         """
         Valida si se puede colocar una pieza en la posición dada
         """
@@ -65,16 +80,16 @@ class TakBoard:
 
         # Validar disponibilidad de piezas
         pieces = self.pieces[self.current_player]
-        if piece_type == 'C':
-            if pieces['capstones'] <= 0:
+        if piece_type == "C":
+            if pieces["capstones"] <= 0:
                 return False, "No te quedan Piedras angulares."
         else:
-            if pieces['flat'] <= 0:
+            if pieces["flat"] <= 0:
                 return False, "No te quedan piedras planas."
 
         return True, ""
 
-    def place_piece(self, row, col, piece_type='F'):
+    def place_piece(self, row, col, piece_type="F", color=None):
         """
         Coloca una pieza en el tablero
         row, col: posición (0-indexed)
@@ -84,13 +99,16 @@ class TakBoard:
         if not allowed:
             return False, message
 
-        self.board[row][col].append((self.current_player, piece_type))
+        # Si no se especifica color, delegar a las reglas para determinarlo
+        piece_color = color if color else self.rules.get_turn_color(self)
 
-        # Actualizar piezas disponibles
-        if piece_type == 'C':
-            self.pieces[self.current_player]['capstones'] -= 1
+        self.board[row][col].append((piece_color, piece_type))
+
+        # Actualizar piezas disponibles (del color de la pieza, no necesariamente del jugador actual)
+        if piece_type == "C":
+            self.pieces[piece_color]["capstones"] -= 1
         else:
-            self.pieces[self.current_player]['flat'] -= 1
+            self.pieces[piece_color]["flat"] -= 1
 
         # Cambio de turno
         self.next_turn()
@@ -112,6 +130,44 @@ class TakBoard:
         direction: 'U', 'D', 'L', 'R'
         drops: lista de enteros indicando cuántas piezas dejar en cada paso
         """
+        # Validar movimiento
+        allowed, message = self._validate_stack_move(
+            start_row, start_col, direction, drops
+        )
+        if not allowed:
+            return False, message
+
+        # Si todo es válido, ejecutar movimiento
+        self.board[start_row][start_col] = left_stack  # Remove moved pieces
+
+        current_r, current_c = start_row, start_col
+        pieces_dropped_so_far = 0
+
+        for drop_count in drops:
+            current_r += dr
+            current_c += dc
+
+            substack = moving_stack[
+                pieces_dropped_so_far : pieces_dropped_so_far + drop_count
+            ]
+            target_stack = self.board[current_r][current_c]
+
+            # Check flatten again to apply data change
+            if target_stack:
+                if target_stack[-1][1] == "S":  # We checked validity above
+                    # Flatten: Change 'S' to 'F'
+                    owner, _ = target_stack.pop()
+                    target_stack.append((owner, "F"))
+
+            # Extend target stack
+            target_stack.extend(substack)
+            pieces_dropped_so_far += drop_count
+
+        self.next_turn()
+        return True, "Movimiento realizado exitosamente."
+
+    def _validate_stack_move(self, start_row, start_col, direction, drops):
+        """Helper to validate stack move without executing it."""
         # 1. Validar control de la pila
         if not self.can_move_stack(start_row, start_col):
             return False, "No controlas esta pila."
@@ -128,12 +184,10 @@ class TakBoard:
             return False, "No hay suficientes piezas en la pila."
 
         # Tomar las piezas (las de arriba)
-        # stack[-N:] son las N piezas de arriba.
         moving_stack = stack[-picked_up_count:]
-        left_stack = stack[:-picked_up_count]
 
         # 4. Simular movimiento y validar ruta
-        deltas = {'U': (-1, 0), 'D': (1, 0), 'L': (0, -1), 'R': (0, 1)}
+        deltas = {"U": (-1, 0), "D": (1, 0), "L": (0, -1), "R": (0, 1)}
         dr, dc = deltas.get(direction.upper(), (0, 0))
 
         if dr == 0 and dc == 0:
@@ -141,9 +195,6 @@ class TakBoard:
 
         current_r, current_c = start_row, start_col
         pieces_dropped_so_far = 0
-
-        # Para restaurar en caso de fallo (aunque aquí solo validaremos antes de modificar si es posible o coping)
-        # Haremos validación paso a paso
 
         # Validar ruta
         for drop_count in drops:
@@ -161,63 +212,59 @@ class TakBoard:
                 top_piece = target_stack[-1]
                 top_type = top_piece[1]
 
-                if top_type == 'S':  # Standing Stone
-                    substack = moving_stack[pieces_dropped_so_far:
-                                            pieces_dropped_so_far + drop_count]
-                    # The one at the bottom of the held stack segment
+                if top_type == "S":  # Standing Stone
+                    substack = moving_stack[
+                        pieces_dropped_so_far : pieces_dropped_so_far + drop_count
+                    ]
                     striking_piece = substack[0]
 
-                    is_last_step = (pieces_dropped_so_far +
-                                    drop_count == picked_up_count)
+                    is_last_step = pieces_dropped_so_far + drop_count == picked_up_count
 
-                    if striking_piece[1] == 'C' and is_last_step and drop_count == 1:
-                        # Valid flatten move (Capstone lands alone on Wall at end of move)
-                        # (Some rules allow carry, but standard is typically Capstone acting alone or top of stack?
-                        # Actually: Capstone needs to be the one hitting. If carried stack is [F, C] (C on top), F hits. Capstone not effective.
-                        # So Striking Piece must be C.
+                    if striking_piece[1] == "C" and is_last_step and drop_count == 1:
                         pass
                     else:
-                        return False, f"Camino bloqueado por un muro en {current_r}, {current_c}."
+                        return (
+                            False,
+                            f"Camino bloqueado por un muro en {current_r}, {current_c}.",
+                        )
 
-                elif top_type == 'C':  # Capstone
-                    return False, f"Camino bloqueado por una Piedra angular en {current_r}, {current_c}."
+                elif top_type == "C":  # Capstone
+                    return (
+                        False,
+                        f"Camino bloqueado por una Piedra angular en {current_r}, {current_c}.",
+                    )
 
             pieces_dropped_so_far += drop_count
 
-        # Si todo es válido, ejecutar movimiento
-        self.board[start_row][start_col] = left_stack  # Remove moved pieces
+        return True, ""
 
-        current_r, current_c = start_row, start_col
-        pieces_dropped_so_far = 0
+    def get_available_decisions(self):
+        """
+        Retorna una lista de movimientos válidos para el turno actual,
+        delegando la lógica al motor de reglas (TakRuleEngine).
+        """
+        return self.rules.get_moves(self)
 
-        for drop_count in drops:
-            current_r += dr
-            current_c += dc
-
-            substack = moving_stack[pieces_dropped_so_far:
-                                    pieces_dropped_so_far + drop_count]
-            target_stack = self.board[current_r][current_c]
-
-            # Check flatten again to apply data change
-            if target_stack:
-                if target_stack[-1][1] == 'S':  # We checked validity above
-                    # Flatten: Change 'S' to 'F'
-                    owner, _ = target_stack.pop()
-                    target_stack.append((owner, 'F'))
-
-            # Extend target stack
-            target_stack.extend(substack)
-            pieces_dropped_so_far += drop_count
-
-        self.next_turn()
-        return True, "Movimiento realizado exitosamente."
+    @staticmethod
+    def _get_compositions(n):
+        """Genera todas las composiciones de n (formas de soltar piezas)."""
+        if n == 1:
+            return [[1]]
+        result = []
+        for k in range(1, n + 1):
+            if k == n:
+                result.append([n])
+            else:
+                for rest in TakBoard._get_compositions(n - k):
+                    result.append([k] + rest)
+        return result
 
     def check_road_win(self):
         """
         Verifica si hay un camino ganador (Road Win).
         Retorna 'white', 'black' o None.
         """
-        for player in ['white', 'black']:
+        for player in ["white", "black"]:
             # Buscar camino Oeste-Este (Izquierda-Derecha)
             starts_we = []
             for r in range(self.size):
@@ -266,14 +313,14 @@ class TakBoard:
         """
         # Chequear condiciones de fin: tablero lleno o jugador sin piezas
         is_full = all(
-            self.board[r][c]
-            for r in range(self.size)
-            for c in range(self.size)
+            self.board[r][c] for r in range(self.size) for c in range(self.size)
         )
 
-        pieces_out = (self.pieces['white']['flat'] == 0 and self.pieces['white']['capstones'] == 0) or \
-                     (self.pieces['black']['flat'] ==
-                      0 and self.pieces['black']['capstones'] == 0)
+        pieces_out = (
+            self.pieces["white"]["flat"] == 0 and self.pieces["white"]["capstones"] == 0
+        ) or (
+            self.pieces["black"]["flat"] == 0 and self.pieces["black"]["capstones"] == 0
+        )
 
         if is_full or pieces_out:
             # Contar flats (solo cuentan piedras planas 'F')
@@ -283,18 +330,18 @@ class TakBoard:
             for r in range(self.size):
                 for c in range(self.size):
                     top = self._top_piece(r, c)
-                    if top and top[1] == 'F':
-                        if top[0] == 'white':
+                    if top and top[1] == "F":
+                        if top[0] == "white":
                             white_score += 1
                         else:
                             black_score += 1
 
             if white_score > black_score:
-                return 'white'
+                return "white"
             elif black_score > white_score:
-                return 'black'
+                return "black"
             else:
-                return 'tie'
+                return "tie"
 
         return None
 
@@ -312,24 +359,25 @@ class TakBoard:
             self.winner = flat_winner
             return f"Ganador por Puntos: {flat_winner}"
 
-        self.current_player = 'black' if self.current_player == 'white' else 'white'
+        self.current_player = "black" if self.current_player == "white" else "white"
+        self.ply_count += 1
         return None
 
     def add_demo_pieces(self):
         """Añade algunas piezas de demostración al tablero"""
         # Algunos ejemplos de colocación
-        self.current_player = 'white'
-        self.place_piece(2, 2, 'F')  # Centro - piedra plana blanca
+        self.current_player = "white"
+        self.place_piece(2, 2, "F")  # Centro - piedra plana blanca
 
-        self.place_piece(1, 2, 'F')  # Piedra plana negra
-        self.place_piece(3, 2, 'S')  # Piedra de pie blanca
-        self.place_piece(2, 1, 'F')  # Piedra plana negra
+        self.place_piece(1, 2, "F")  # Piedra plana negra
+        self.place_piece(3, 2, "S")  # Piedra de pie blanca
+        self.place_piece(2, 1, "F")  # Piedra plana negra
 
         if self.size >= 5:
-            self.place_piece(0, 0, 'C')  # Piedra angular blanca
-            self.place_piece(4, 4, 'C')  # Piedra angular negra
-            self.place_piece(2, 3, 'F')  # Piedra plana blanca
+            self.place_piece(0, 0, "C")  # Piedra angular blanca
+            self.place_piece(4, 4, "C")  # Piedra angular negra
+            self.place_piece(2, 3, "F")  # Piedra plana blanca
 
         # Simular una pila
         if self.size >= 5:
-            self.board[1][1] = [('white', 'F'), ('black', 'F'), ('white', 'F')]
+            self.board[1][1] = [("white", "F"), ("black", "F"), ("white", "F")]
