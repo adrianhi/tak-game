@@ -1,6 +1,7 @@
 from bienvenida import bienvenida
 from Menu_Tak import pedir_nombres, menu_principal, jugar_nuevamente
 from board import TakBoard
+from minimaxAI import MinimaxAI
 from ui_manager import TakTerminalUI
 from controller import TakController
 import time
@@ -9,6 +10,7 @@ import time
 def main():
     """Función principal del juego Tak. Orquesta la lógica, UI y controlador."""
     # bienvenida()
+ 
 
     # 2. Solicitar nombres de jugadores
     jugador1, jugador2 = pedir_nombres()
