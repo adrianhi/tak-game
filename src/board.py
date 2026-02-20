@@ -33,7 +33,6 @@ class TakBoard:
         }
 
         self.current_player = "white"
-        
 
         # Contador de "plies" (medios turnos).
         # 0 = Turno 1 Blancas, 1 = Turno 1 Negras, 2 = Turno 2 Blancas (Normal)...
@@ -189,12 +188,12 @@ class TakBoard:
         # 4️⃣ Cambiar turno
         self.next_turn()
         return True, "Movimiento realizado exitosamente."
-    
+
     def apply_move(self, move):
         """
         Aplica un movimiento genérico al tablero.
         El movimiento debe venir en el formato generado por get_available_decisions().
-        
+
         move: dict con estructura:
             - Place:
                 {
@@ -228,7 +227,6 @@ class TakBoard:
 
         else:
             return False, "Tipo de movimiento desconocido."
-
 
     def _validate_stack_move(self, start_row, start_col, direction, drops):
         """Helper to validate stack move without executing it."""
@@ -435,28 +433,7 @@ class TakBoard:
         """Retorna True si el juego ha terminado."""
         return self.get_winner() is not None
 
-    def add_demo_pieces(self):
-        """Añade algunas piezas de demostración al tablero"""
-        # Algunos ejemplos de colocación
-        self.current_player = "white"
-        self.place_piece(2, 2, "F")  # Centro - piedra plana blanca
-
-        self.place_piece(1, 2, "F")  # Piedra plana negra
-        self.place_piece(3, 2, "S")  # Piedra de pie blanca
-        self.place_piece(2, 1, "F")  # Piedra plana negra
-
-        if self.size >= 5:
-            self.place_piece(0, 0, "C")  # Piedra angular blanca
-            self.place_piece(4, 4, "C")  # Piedra angular negra
-            self.place_piece(2, 3, "F")  # Piedra plana blanca
-
-        # Simular una pila
-        if self.size >= 5:
-            self.board[1][1] = [("white", "F"), ("black", "F"), ("white", "F")]
-
-
     # LO ULTIMO AGREGADO
-
 
     def evaluate(self, player):
         """
@@ -495,7 +472,6 @@ class TakBoard:
         score += 1 * (my_reserve - opp_reserve)
 
         return score
-    
 
     def _count_visible_flats(self, player):
         count = 0
@@ -507,7 +483,6 @@ class TakBoard:
                     if owner == player and piece_type != "S":
                         count += 1
         return count
-    
 
     def _largest_connected_group(self, player):
         visited = set()
@@ -524,7 +499,6 @@ class TakBoard:
                     max_group = max(max_group, size)
 
         return max_group
-    
 
     def _bfs_group_size(self, start_r, start_c, player, visited):
         from collections import deque
@@ -539,7 +513,7 @@ class TakBoard:
             r, c = queue.popleft()
             size += 1
 
-            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 nr, nc = r + dr, c + dc
                 if 0 <= nr < self.size and 0 <= nc < self.size:
                     if (nr, nc) not in visited:
