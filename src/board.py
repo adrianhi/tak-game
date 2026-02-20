@@ -33,8 +33,7 @@ class TakBoard:
         }
 
         self.current_player = "white"
-        self.current_player = "white"
-        self.current_player = "white"
+        
 
         # Contador de "plies" (medios turnos).
         # 0 = Turno 1 Blancas, 1 = Turno 1 Negras, 2 = Turno 2 Blancas (Normal)...
@@ -138,19 +137,37 @@ class TakBoard:
         direction: 'U', 'D', 'L', 'R'
         drops: lista de enteros indicando cuántas piezas dejar en cada paso
         """
-        # Validar movimiento
+        # 1️⃣ Validar movimiento
         allowed, message = self._validate_stack_move(
             start_row, start_col, direction, drops
         )
         if not allowed:
             return False, message
 
-        # Si todo es válido, ejecutar movimiento
-        self.board[start_row][start_col] = left_stack  # Remove moved pieces
+        # 2️⃣ Preparar datos del movimiento
+        stack = self.board[start_row][start_col]
+        picked_up_count = sum(drops)
+
+        # Tomar piezas desde arriba (orden correcto)
+        moving_stack = stack[-picked_up_count:]
+        left_stack = stack[:-picked_up_count]
+
+        # Actualizar pila original
+        self.board[start_row][start_col] = left_stack
+
+        # Dirección
+        deltas = {
+            "U": (-1, 0),
+            "D": (1, 0),
+            "L": (0, -1),
+            "R": (0, 1),
+        }
+        dr, dc = deltas[direction.upper()]
 
         current_r, current_c = start_row, start_col
         pieces_dropped_so_far = 0
 
+        # 3️⃣ Ejecutar distribución
         for drop_count in drops:
             current_r += dr
             current_c += dc
@@ -160,19 +177,58 @@ class TakBoard:
             ]
             target_stack = self.board[current_r][current_c]
 
-            # Check flatten again to apply data change
-            if target_stack:
-                if target_stack[-1][1] == "S":  # We checked validity above
-                    # Flatten: Change 'S' to 'F'
-                    owner, _ = target_stack.pop()
-                    target_stack.append((owner, "F"))
+            # Aplastar muro si corresponde (ya validado)
+            if target_stack and target_stack[-1][1] == "S":
+                owner, _ = target_stack.pop()
+                target_stack.append((owner, "F"))
 
-            # Extend target stack
+            # Colocar piezas
             target_stack.extend(substack)
             pieces_dropped_so_far += drop_count
 
+        # 4️⃣ Cambiar turno
         self.next_turn()
         return True, "Movimiento realizado exitosamente."
+    
+    def apply_move(self, move):
+        """
+        Aplica un movimiento genérico al tablero.
+        El movimiento debe venir en el formato generado por get_available_decisions().
+        
+        move: dict con estructura:
+            - Place:
+                {
+                    "type": "place",
+                    "pos": (r, c),
+                    "piece": "F" | "S" | "C",
+                    "color": "white" | "black"
+                }
+            - Move:
+                {
+                    "type": "move",
+                    "pos": (r, c),
+                    "dir": "U" | "D" | "L" | "R",
+                    "drops": [int, int, ...]
+                }
+        """
+
+        if move["type"] == "place":
+            row, col = move["pos"]
+            piece = move["piece"]
+            color = move.get("color")  # Puede venir forzado en apertura
+
+            return self.place_piece(row, col, piece, color)
+
+        elif move["type"] == "move":
+            row, col = move["pos"]
+            direction = move["dir"]
+            drops = move["drops"]
+
+            return self.move_stack(row, col, direction, drops)
+
+        else:
+            return False, "Tipo de movimiento desconocido."
+
 
     def _validate_stack_move(self, start_row, start_col, direction, drops):
         """Helper to validate stack move without executing it."""
@@ -397,3 +453,99 @@ class TakBoard:
         # Simular una pila
         if self.size >= 5:
             self.board[1][1] = [("white", "F"), ("black", "F"), ("white", "F")]
+
+
+    # LO ULTIMO AGREGADO
+
+
+    def evaluate(self, player):
+        """
+        Evaluación simple del tablero desde la perspectiva de 'player'.
+        Retorna un valor positivo si la posición es buena para 'player',
+        negativo si es mala.
+        """
+
+        opponent = "black" if player == "white" else "white"
+
+        # Caso terminal
+        if self.is_terminal():
+            winner = self.get_winner()
+            if winner == player:
+                return 100000
+            elif winner == opponent:
+                return -100000
+            else:
+                return 0
+
+        score = 0
+
+        # 1️⃣ Flats visibles (solo top y no standing)
+        my_flats = self._count_visible_flats(player)
+        opp_flats = self._count_visible_flats(opponent)
+        score += 2 * (my_flats - opp_flats)
+
+        # 2️⃣ Conectividad
+        my_group = self._largest_connected_group(player)
+        opp_group = self._largest_connected_group(opponent)
+        score += 5 * (my_group - opp_group)
+
+        # 3️⃣ Piezas restantes
+        my_reserve = sum(self.pieces[player].values())
+        opp_reserve = sum(self.pieces[opponent].values())
+        score += 1 * (my_reserve - opp_reserve)
+
+        return score
+    
+
+    def _count_visible_flats(self, player):
+        count = 0
+        for r in range(self.size):
+            for c in range(self.size):
+                stack = self.board[r][c]
+                if stack:
+                    owner, piece_type = stack[-1]
+                    if owner == player and piece_type != "S":
+                        count += 1
+        return count
+    
+
+    def _largest_connected_group(self, player):
+        visited = set()
+        max_group = 0
+
+        for r in range(self.size):
+            for c in range(self.size):
+                if (r, c) in visited:
+                    continue
+
+                stack = self.board[r][c]
+                if stack and stack[-1][0] == player and stack[-1][1] != "S":
+                    size = self._bfs_group_size(r, c, player, visited)
+                    max_group = max(max_group, size)
+
+        return max_group
+    
+
+    def _bfs_group_size(self, start_r, start_c, player, visited):
+        from collections import deque
+
+        queue = deque()
+        queue.append((start_r, start_c))
+        visited.add((start_r, start_c))
+
+        size = 0
+
+        while queue:
+            r, c = queue.popleft()
+            size += 1
+
+            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < self.size and 0 <= nc < self.size:
+                    if (nr, nc) not in visited:
+                        stack = self.board[nr][nc]
+                        if stack and stack[-1][0] == player and stack[-1][1] != "S":
+                            visited.add((nr, nc))
+                            queue.append((nr, nc))
+
+        return size
