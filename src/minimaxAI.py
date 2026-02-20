@@ -23,10 +23,7 @@ class MinimaxAI:
             clone.apply_move(move)
 
             score = self._minimax(
-                clone,
-                depth - 1,
-                maximizing=False,
-                ai_player=ai_player
+                clone, depth - 1, maximizing=False, ai_player=ai_player
             )
 
             if score > best_score:
@@ -39,7 +36,6 @@ class MinimaxAI:
         """
         Implementación recursiva del algoritmo Minimax.
         """
-        print(f"Depth: {depth} | Maximizing: {maximizing}")
         # Caso base
         if depth == 0 or board.is_terminal():
             return board.evaluate(ai_player)
@@ -57,10 +53,7 @@ class MinimaxAI:
                 clone.apply_move(move)
 
                 eval_score = self._minimax(
-                    clone,
-                    depth - 1,
-                    maximizing=False,
-                    ai_player=ai_player
+                    clone, depth - 1, maximizing=False, ai_player=ai_player
                 )
 
                 max_eval = max(max_eval, eval_score)
@@ -75,16 +68,12 @@ class MinimaxAI:
                 clone.apply_move(move)
 
                 eval_score = self._minimax(
-                    clone,
-                    depth - 1,
-                    maximizing=True,
-                    ai_player=ai_player
+                    clone, depth - 1, maximizing=True, ai_player=ai_player
                 )
 
                 min_eval = min(min_eval, eval_score)
 
             return min_eval
-        
 
     def debug_root(self, board, depth=2):
         """
@@ -106,10 +95,7 @@ class MinimaxAI:
             clone.apply_move(move)
 
             score = self._minimax(
-                clone,
-                depth - 1,
-                maximizing=False,
-                ai_player=ai_player
+                clone, depth - 1, maximizing=False, ai_player=ai_player
             )
 
             print("Movimiento:", move)
@@ -125,5 +111,3 @@ class MinimaxAI:
         print("---------------------------------\n")
 
         return best_move
-
-        
