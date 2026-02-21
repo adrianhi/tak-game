@@ -2,12 +2,16 @@ def pedir_nombres():
     print("Bienvenidos a Tak!")
     jugador1 = input("Ingresa el nombre del Jugador 1 (Blancas): ").strip()
     while jugador1 == "":
-        jugador1 = input("El nombre no puede estar vacío. Ingresa el nombre del Jugador 1: ").strip()
-    
+        jugador1 = input(
+            "El nombre no puede estar vacío. Ingresa el nombre del Jugador 1: "
+        ).strip()
+
     jugador2 = input("Ingresa el nombre del Jugador 2 (Negras): ").strip()
     while jugador2 == "" or jugador2 == jugador1:
-        jugador2 = input("El nombre no puede estar vacío ni ser igual al Jugador 1. Ingresa el nombre del Jugador 2: ").strip()
-    
+        jugador2 = input(
+            "El nombre no puede estar vacío ni ser igual al Jugador 1. Ingresa el nombre del Jugador 2: "
+        ).strip()
+
     return jugador1, jugador2
 
 
@@ -17,15 +21,32 @@ def menu_principal():
         print("1. Jugar")
         print("2. Salir")
         print("3. Cambiar Nombres")
-        
+
         opcion = input("Selecciona una opción: ").strip()
-        
+
         # Validación: solo números 1, 2 o 3
         if opcion not in ["1", "2", "3"]:
             print("Opción inválida. Por favor ingresa 1, 2 o 3.")
             continue
-        
+
         return int(opcion)
+
+
+def seleccionar_modo_juego():
+    while True:
+        print("\n=== SELECCIONAR MODO DE JUEGO ===")
+        print("1. Player vs Player")
+        print("2. Player vs AI")
+        print("3. Volver")
+
+        opcion = input("Selecciona un modo: ").strip()
+
+        if opcion not in ["1", "2", "3"]:
+            print("Opción inválida. Por favor ingresa 1, 2 o 3.")
+            continue
+
+        return int(opcion)
+
 
 def jugar_nuevamente():
     while True:

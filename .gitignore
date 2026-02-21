@@ -1,0 +1,23 @@
+Virtual Environment
+venv/
+ENV/
+env/
+.env
+
+Python Bytecode & Cache
+pycache/
+*.py[cod]
+*$py.class
+
+OS generated files
+.DS_Store
+Thumbs.db
+
+IDEs (VS Code, PyCharm)
+.vscode/
+.idea/
+
+Distribution / Data
+dist/
+build/
+*.log
