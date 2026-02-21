@@ -1,4 +1,7 @@
 import numpy as np
+import time
+
+import board
 
 import board
 
@@ -7,12 +10,17 @@ class MinimaxAI:
     def __init__(self):
         self.nodes_explored = 0
 
-    def choose_move(self, board, max_depth=3):
+    def choose_move(self, board, max_depth=3, max_time=5):
         """
         Retorna el mejor movimiento para el jugador actual del tablero
-        utilizando Iterative Deepening Search (IDS) sobre Minimax con poda Alpha-Beta.
+        utilizando Iterative Deepening Search (IDS) sobre Minimax con poda Alpha-Beta
+        y con un límite de tiempo configurable.
         """
         self.nodes_explored = 0
+        self.start_time = time.time()
+        self.max_time = max_time
+        self.time_up = False
+
         ai_player = board.current_player
 
         overall_best_move = None
@@ -39,6 +47,10 @@ class MinimaxAI:
 
                 score = self._alphabeta(clone, depth - 1, alpha, beta, False, ai_player)
 
+                # Si el tiempo se agotó mientras exploraba, ignoramos este avance parcial
+                if self.time_up:
+                    break
+
                 if score > best_score:
                     best_score = score
                     best_move_this_iteration = move
@@ -46,8 +58,14 @@ class MinimaxAI:
                 # Actualizamos alpha en la raíz
                 alpha = max(alpha, best_score)
 
-            # Guardamos el mejor movimiento de esta profundidad
-            overall_best_move = best_move_this_iteration
+            if self.time_up:
+                print(f"-> ¡Tiempo agotado! (Cortando búsqueda en profundidad {depth})")
+                break
+
+            # Guardamos el mejor movimiento de esta profundidad de forma segura
+            # (solo si completó el nivel sin ser cortado por tiempo o si es el primero)
+            if best_move_this_iteration is not None:
+                overall_best_move = best_move_this_iteration
 
             print(
                 f"-> Profundidad actual: {depth} | Score: {best_score} | Nodos acumulados: {self.nodes_explored}"
@@ -64,6 +82,11 @@ class MinimaxAI:
         """
         Implementación recursiva del algoritmo Minimax con poda Alpha-Beta.
         """
+        # Chequeo de tiempo
+        if time.time() - self.start_time >= self.max_time:
+            self.time_up = True
+            return board.evaluate(ai_player)
+
         self.nodes_explored += 1
 
         # Caso base
@@ -86,6 +109,9 @@ class MinimaxAI:
                     clone, depth - 1, alpha, beta, False, ai_player
                 )
 
+                if self.time_up:
+                    break
+
                 max_eval = max(max_eval, eval_score)
                 alpha = max(alpha, eval_score)
 
@@ -105,6 +131,9 @@ class MinimaxAI:
                 eval_score = self._alphabeta(
                     clone, depth - 1, alpha, beta, True, ai_player
                 )
+
+                if self.time_up:
+                    break
 
                 min_eval = min(min_eval, eval_score)
                 beta = min(beta, eval_score)

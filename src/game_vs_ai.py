@@ -40,6 +40,10 @@ def play_vs_ai_test():
     controller = TakController(board)
     ai = MinimaxAI()
 
+    # Configurar límite de tiempo después de tener el controlador
+    max_time = controller.get_ai_time_limit()
+    print(f"La IA no tomará más de {max_time} segundos por turno.\n")
+
     # Bucle del juego
     while not board.is_terminal():
         ui.display_board()
@@ -112,7 +116,7 @@ def play_vs_ai_test():
             print("La IA está pensando su próximo movimiento...")
 
             start_time = time.time()
-            move = ai.choose_move(board, max_depth=depth)
+            move = ai.choose_move(board, max_depth=depth, max_time=max_time)
             end_time = time.time()
 
             if move is None:

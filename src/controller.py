@@ -223,8 +223,7 @@ class TakController:
                     continue
 
                 if pickup_count > self.board.size:
-                    print(
-                        f"❌ No puedes cargar más de {self.board.size} ficha(s).")
+                    print(f"❌ No puedes cargar más de {self.board.size} ficha(s).")
                     continue
 
                 break
@@ -239,8 +238,7 @@ class TakController:
         print(
             "Ejemplo: Si mueves 3 fichas, puedes distribuir: 1,2 (dejas 1 en la primera casilla, 2 en la segunda)"
         )
-        print(
-            f"O simplemente: {pickup_count} (dejas todas en la última casilla)")
+        print(f"O simplemente: {pickup_count} (dejas todas en la última casilla)")
 
         while True:
             print("\nEscribe '0' para volver")
@@ -274,3 +272,23 @@ class TakController:
                     "❌ Formato inválido. Usa números separados por comas (ej: 1,2 o 3)"
                 )
                 continue
+
+    def get_ai_time_limit(self):
+        """
+        Pregunta al usuario el tiempo máximo en segundos que la IA puede pensar.
+        Retorna: (int) segundos
+        """
+        while True:
+            limit_input = input(
+                "Ingresa el tiempo máximo para la IA en segundos (ej. 5): "
+            ).strip()
+
+            if not limit_input:
+                return 5  # Valor por defecto
+
+            if limit_input.isdigit() and int(limit_input) > 0:
+                return int(limit_input)
+
+            print(
+                "❌ Tiempo inválido. Por favor, ingresa un número entero positivo mayor a cero."
+            )
