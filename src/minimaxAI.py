@@ -7,41 +7,58 @@ class MinimaxAI:
     def __init__(self):
         self.nodes_explored = 0
 
-    def choose_move(self, board, depth=3):
+    def choose_move(self, board, max_depth=3):
         """
         Retorna el mejor movimiento para el jugador actual del tablero
-        utilizando algoritmo Minimax con poda Alpha-Beta.
+        utilizando Iterative Deepening Search (IDS) sobre Minimax con poda Alpha-Beta.
         """
         self.nodes_explored = 0
         ai_player = board.current_player
-        best_score = -np.inf
-        best_move = None
+
+        overall_best_move = None
 
         moves = board.get_available_decisions()
-
         if not moves:
             return None
 
-        # Para el nivel raíz, evaluamos cada movimiento posible
-        alpha = -np.inf
-        beta = np.inf
+        # Iterative Deepening Loop
+        for depth in range(1, max_depth + 1):
+            best_score = -np.inf
+            best_move_this_iteration = None
+            alpha = -np.inf
+            beta = np.inf
 
-        for move in moves:
-            clone = board.clone()
-            clone.apply_move(move)
+            # Simple Move Ordering: probar el mejor movimiento de la iteración anterior primero
+            if overall_best_move in moves:
+                moves.remove(overall_best_move)
+                moves.insert(0, overall_best_move)
 
-            score = self._alphabeta(clone, depth - 1, alpha, beta, False, ai_player)
+            for move in moves:
+                clone = board.clone()
+                clone.apply_move(move)
 
-            if score > best_score:
-                best_score = score
-                best_move = move
+                score = self._alphabeta(clone, depth - 1, alpha, beta, False, ai_player)
 
-            # Actualizamos alpha en la raíz
-            alpha = max(alpha, best_score)
+                if score > best_score:
+                    best_score = score
+                    best_move_this_iteration = move
 
-        print(f"-> Profundidad de búsqueda: {depth}")
-        print(f"-> Total de nodos evaluados (Alpha-Beta): {self.nodes_explored}")
-        return best_move
+                # Actualizamos alpha en la raíz
+                alpha = max(alpha, best_score)
+
+            # Guardamos el mejor movimiento de esta profundidad
+            overall_best_move = best_move_this_iteration
+
+            print(
+                f"-> Profundidad actual: {depth} | Score: {best_score} | Nodos acumulados: {self.nodes_explored}"
+            )
+
+        print(f"\n=> Búsqueda IDS completada hasta profundidad {max_depth}.")
+        print(
+            f"=> Total de nodos evaluados (IDS + Alpha-Beta): {self.nodes_explored}\n"
+        )
+
+        return overall_best_move
 
     def _alphabeta(self, board, depth, alpha, beta, maximizing, ai_player):
         """

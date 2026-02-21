@@ -112,7 +112,7 @@ def play_vs_ai_test():
             print("La IA está pensando su próximo movimiento...")
 
             start_time = time.time()
-            move = ai.choose_move(board, depth=depth)
+            move = ai.choose_move(board, max_depth=depth)
             end_time = time.time()
 
             if move is None:
