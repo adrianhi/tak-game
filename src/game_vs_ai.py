@@ -2,6 +2,9 @@ import time
 from board import TakBoard
 from controller import TakController
 from minimaxAI import MinimaxAI
+from randomAI import RandomAI
+from greedyAI import GreedyAI
+from worstAI import WorstAI
 from ui_manager import TakTerminalUI
 
 
@@ -23,22 +26,55 @@ def play_vs_ai_test():
 
     ai_color = "black" if human_color == "white" else "white"
 
-    # Configurar profundidad
-    depth_str = input(
-        "Elige la profundidad de la IA (ej. 2, 3) [por defecto 2]: "
-    ).strip()
-    depth = 2
-    if depth_str.isdigit():
-        depth = int(depth_str)
-
-    print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
-    print(f"La IA ('{ai_color}') jugará con profundidad Minimax {depth}.\n")
-
     # Inicializar el estado del juego y los componentes MVC de consola
     board = TakBoard(size=5)
     ui = TakTerminalUI(board)
     controller = TakController(board)
-    ai = MinimaxAI()
+
+    print("\n--- Configuración de la IA ---")
+    print("Tipo de IA:")
+    print("  1. Minimax")
+    print("  2. Random")
+    print("  3. Greedy")
+    print("  4. Worst")
+    ai_type = input("Opción (1, 2, 3 o 4) [por defecto 1]: ").strip()
+
+    if ai_type == "2":
+        ai = RandomAI()
+        depth, max_time = 0, 0
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará de forma aleatoria.\n")
+    elif ai_type == "3":
+        dummy_minimax = MinimaxAI()
+        ai = GreedyAI(dummy_minimax.evaluate)
+        depth, max_time = 0, 0
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará de forma greedy (codiciosa).\n")
+    elif ai_type == "4":
+        dummy_minimax = MinimaxAI()
+        ai = WorstAI(dummy_minimax.evaluate)
+        depth, max_time = 0, 0
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará de forma worst (el peor balance).\n")
+    else:
+        # Configurar profundidad
+        depth_str = input(
+            "Elige la profundidad de la IA (ej. 2, 3) [por defecto 2]: "
+        ).strip()
+        depth = 2
+        if depth_str.isdigit():
+            depth = int(depth_str)
+
+        num_heuristics = controller.get_number_of_heuristics()
+        weight_config = controller.get_weight_config()
+        ai = MinimaxAI(num_heuristics=num_heuristics, weight_config=weight_config)
+
+        # Configurar límite de tiempo después de tener el controlador
+        max_time = controller.get_ai_time_limit()
+
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará con profundidad Minimax {depth}.")
+        print(f"La IA no tomará más de {max_time} segundos por turno.\n")
 
     # Bucle del juego
     while not board.is_terminal():
@@ -112,7 +148,7 @@ def play_vs_ai_test():
             print("La IA está pensando su próximo movimiento...")
 
             start_time = time.time()
-            move = ai.choose_move(board, depth=depth)
+            move = ai.choose_move(board, max_depth=depth, max_time=max_time)
             end_time = time.time()
 
             if move is None:
@@ -134,14 +170,16 @@ def play_vs_ai_test():
     print("=" * 30)
 
     winner = board.get_winner()
-    if winner:
+    if winner in ("white", "black"):
         print(f"¡El ganador es el jugador {winner.upper()}!")
         if winner == human_color:
             print("¡Felicidades, ganaste contra la IA!")
         else:
             print("La IA ha ganado. ¡Mejor suerte la próxima!")
+    elif winner == "tie":
+        print("La partida terminó en empate.")
     else:
-        print("El juego ha terminado en empate o finalizado sin ganador definido.")
+        print("Juego finalizado sin resultado válido.")
 
 
 if __name__ == "__main__":
