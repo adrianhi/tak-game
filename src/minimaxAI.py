@@ -7,8 +7,16 @@ import board
 
 
 class MinimaxAI:
-    def __init__(self):
+    def __init__(self, num_heuristics=5):
         self.nodes_explored = 0
+        self.all_heuristics = [
+            self.h_flats,
+            self.h_connected_group,
+            self.h_reserves,
+            self.h_center_control,
+            self.h_mobility,
+        ]
+        self.active_heuristics = self.all_heuristics[:num_heuristics]
 
     def choose_move(self, board, max_depth=3, max_time=5):
         """
@@ -85,18 +93,18 @@ class MinimaxAI:
         # Chequeo de tiempo
         if time.time() - self.start_time >= self.max_time:
             self.time_up = True
-            return board.evaluate(ai_player)
+            return self.evaluate(board, ai_player)
 
         self.nodes_explored += 1
 
         # Caso base
         if depth == 0 or board.is_terminal():
-            return board.evaluate(ai_player)
+            return self.evaluate(board, ai_player)
 
         moves = board.get_available_decisions()
 
         if not moves:
-            return board.evaluate(ai_player)
+            return self.evaluate(board, ai_player)
 
         if maximizing:
             max_eval = -np.inf
@@ -185,3 +193,84 @@ class MinimaxAI:
         print("---------------------------------\n")
 
         return best_move
+
+    def evaluate(self, board, player):
+        opponent = "black" if player == "white" else "white"
+
+        # Caso terminal
+        if board.is_terminal():
+            winner = board.get_winner()
+            if winner == player:
+                return 100000
+            elif winner == opponent:
+                return -100000
+            else:
+                return 0
+
+        score = 0
+        for heuristic in self.active_heuristics:
+            score += heuristic(board, player)
+        return score
+
+    # Heuristics
+    def h_flats(self, board, player):
+        """
+        Heurística que cuenta las piezas planas del jugador y las del oponente.
+        """
+        opponent = "black" if player == "white" else "white"
+        my_flats = board._count_visible_flats(player)
+        opp_flats = board._count_visible_flats(opponent)
+        return 2 * (my_flats - opp_flats)
+
+    def h_connected_group(self, board, player):
+        """
+        Heurística que cuenta el tamaño del grupo conectado más grande del jugador y del oponente.
+        """
+        opponent = "black" if player == "white" else "white"
+        my_group = board._largest_connected_group(player)
+        opp_group = board._largest_connected_group(opponent)
+        return 5 * (my_group - opp_group)
+
+    def h_reserves(self, board, player):
+        """
+        Heurística que cuenta las piezas de reserva del jugador y las del oponente.
+        """
+        opponent = "black" if player == "white" else "white"
+        my_reserve = sum(board.pieces[player].values())
+        opp_reserve = sum(board.pieces[opponent].values())
+        return 1 * (my_reserve - opp_reserve)
+
+    def h_center_control(self, board, player):
+        """
+        Heurística que cuenta el control del centro del tablero por parte del jugador y del oponente.
+        """
+        center = board.size // 2
+        score = 0
+        for r in range(board.size):
+            for c in range(board.size):
+                stack = board.board[r][c]
+                if stack:
+                    owner = stack[-1][0]
+                    dist = abs(r - center) + abs(c - center)
+                    val = max(0, 2 - dist)
+                    if owner == player:
+                        score += val
+                    else:
+                        score -= val
+        return 2 * score
+
+    def h_mobility(self, board, player):
+        """
+        Heurística que cuenta la movilidad del jugador y del oponente.
+        """
+        my_stacks = 0
+        opp_stacks = 0
+        for r in range(board.size):
+            for c in range(board.size):
+                stack = board.board[r][c]
+                if stack:
+                    if stack[-1][0] == player:
+                        my_stacks += 1
+                    else:
+                        opp_stacks += 1
+        return 1 * (my_stacks - opp_stacks)

@@ -38,7 +38,9 @@ def play_vs_ai_test():
     board = TakBoard(size=5)
     ui = TakTerminalUI(board)
     controller = TakController(board)
-    ai = MinimaxAI()
+
+    num_heuristics = controller.get_number_of_heuristics()
+    ai = MinimaxAI(num_heuristics=num_heuristics)
 
     # Configurar límite de tiempo después de tener el controlador
     max_time = controller.get_ai_time_limit()

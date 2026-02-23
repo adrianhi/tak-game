@@ -292,3 +292,25 @@ class TakController:
             print(
                 "❌ Tiempo inválido. Por favor, ingresa un número entero positivo mayor a cero."
             )
+
+    def get_number_of_heuristics(self):
+        """
+        Pregunta al usuario el número de heurísticas a utilizar en la IA (1-5).
+        Retorna: (int) número de heurísticas
+        """
+        while True:
+            limit_input = input(
+                "\nIngresa el número de heurísticas a usar para la IA (1 a 5) [por defecto 5]: "
+            ).strip()
+
+            if not limit_input:
+                return 5
+
+            if limit_input.isdigit():
+                num = int(limit_input)
+                if 1 <= num <= 5:
+                    return num
+
+            print(
+                "❌ Número inválido. Por favor, ingresa un número entero entre 1 y 5."
+            )
