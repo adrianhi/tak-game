@@ -8,7 +8,11 @@ import board
 
 class MinimaxAI:
     def __init__(self, num_heuristics=5):
-        self.nodes_explored = 0
+        self.nodes_explored = (
+            0  # Mantengo este para compatibilidad retrospectiva si es necesario
+        )
+        self.nodes_last_move = 0
+        self.nodes_total = 0
         self.all_heuristics = [
             self.h_flats,
             self.h_connected_group,
@@ -25,6 +29,7 @@ class MinimaxAI:
         y con un límite de tiempo configurable.
         """
         self.nodes_explored = 0
+        self.nodes_last_move = 0
         self.start_time = time.time()
         self.max_time = max_time
         self.time_up = False
@@ -76,12 +81,14 @@ class MinimaxAI:
                 overall_best_move = best_move_this_iteration
 
             print(
-                f"-> Profundidad actual: {depth} | Score: {best_score} | Nodos acumulados: {self.nodes_explored}"
+                f"-> Profundidad actual: {depth} | Score: {best_score} | Nodos acumulados (iteración): {self.nodes_last_move}"
             )
+
+        self.nodes_total += self.nodes_last_move
 
         print(f"\n=> Búsqueda IDS completada hasta profundidad {max_depth}.")
         print(
-            f"=> Total de nodos evaluados (IDS + Alpha-Beta): {self.nodes_explored}\n"
+            f"=> Total de nodos evaluados (IDS + Alpha-Beta): {self.nodes_last_move}\n"
         )
 
         return overall_best_move
@@ -96,6 +103,7 @@ class MinimaxAI:
             return self.evaluate(board, ai_player)
 
         self.nodes_explored += 1
+        self.nodes_last_move += 1
 
         # Caso base
         if depth == 0 or board.is_terminal():
@@ -158,6 +166,7 @@ class MinimaxAI:
         Incluye poda al nivel raíz.
         """
         self.nodes_explored = 0
+        self.nodes_last_move = 0
         ai_player = board.current_player
         moves = board.get_available_decisions()
 
@@ -189,7 +198,7 @@ class MinimaxAI:
 
         print("\n>>> Mejor movimiento:", best_move)
         print(">>> Mejor score:", best_score)
-        print(">>> Nodos evaluados en total:", self.nodes_explored)
+        print(">>> Nodos evaluados en total:", self.nodes_last_move)
         print("---------------------------------\n")
 
         return best_move

@@ -4,6 +4,7 @@ from controller import TakController
 from minimaxAI import MinimaxAI
 from randomAI import RandomAI
 from greedyAI import GreedyAI
+from worstAI import WorstAI
 from ui_manager import TakTerminalUI
 
 
@@ -23,7 +24,8 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     print("  1. Minimax")
     print("  2. Random")
     print("  3. Greedy")
-    ai_w_type = input("Opción (1, 2 o 3) [por defecto 1]: ").strip()
+    print("  4. Worst")
+    ai_w_type = input("Opción (1, 2, 3 o 4) [por defecto 1]: ").strip()
 
     if ai_w_type == "2":
         ai_white = RandomAI()
@@ -33,6 +35,10 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
         # Como GreedyAI pide `evaluation_function`, le pasamos el `evaluate` de Minimax
         dummy_minimax = MinimaxAI()
         ai_white = GreedyAI(dummy_minimax.evaluate)
+        depth_w, time_w = 0, 0
+    elif ai_w_type == "4":
+        dummy_minimax = MinimaxAI()
+        ai_white = WorstAI(dummy_minimax.evaluate)
         depth_w, time_w = 0, 0
     else:
         depth_w_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
@@ -46,7 +52,8 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     print("  1. Minimax")
     print("  2. Random")
     print("  3. Greedy")
-    ai_b_type = input("Opción (1, 2 o 3) [por defecto 1]: ").strip()
+    print("  4. Worst")
+    ai_b_type = input("Opción (1, 2, 3 o 4) [por defecto 1]: ").strip()
 
     if ai_b_type == "2":
         ai_black = RandomAI()
@@ -54,6 +61,10 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     elif ai_b_type == "3":
         dummy_minimax = MinimaxAI()
         ai_black = GreedyAI(dummy_minimax.evaluate)
+        depth_b, time_b = 0, 0
+    elif ai_b_type == "4":
+        dummy_minimax = MinimaxAI()
+        ai_black = WorstAI(dummy_minimax.evaluate)
         depth_b, time_b = 0, 0
     else:
         depth_b_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
@@ -85,7 +96,6 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
                 break
 
             elapsed_time = end_time - start_time
-            print(f"-> {jugador1_nombre} ha aplicado el movimiento: {move}")
             print(f"-> Tiempo de respuesta: {elapsed_time:.3f} segundos")
 
         else:
@@ -103,7 +113,6 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
                 break
 
             elapsed_time = end_time - start_time
-            print(f"-> {jugador2_nombre} ha aplicado el movimiento: {move}")
             print(f"-> Tiempo de respuesta: {elapsed_time:.3f} segundos")
 
         board.apply_move(move)
@@ -124,12 +133,18 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
 
     print("\nEstadísticas finales:")
     if isinstance(ai_white, MinimaxAI):
-        print(f"- {jugador1_nombre}: {ai_white.nodes_explored} nodos evaluados.")
+        print(f"- {jugador1_nombre} (IA Blancas):")
+        print(
+            f"   Nodos totales expandidos: {getattr(ai_white, 'nodes_total', ai_white.nodes_explored)}"
+        )
     else:
         print(f"- {jugador1_nombre}: No aplica (no usa Minimax).")
 
     if isinstance(ai_black, MinimaxAI):
-        print(f"- {jugador2_nombre}: {ai_black.nodes_explored} nodos evaluados.")
+        print(f"- {jugador2_nombre} (IA Negras):")
+        print(
+            f"   Nodos totales expandidos: {getattr(ai_black, 'nodes_total', ai_black.nodes_explored)}"
+        )
     else:
         print(f"- {jugador2_nombre}: No aplica (no usa Minimax).")
 
