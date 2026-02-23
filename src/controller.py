@@ -314,3 +314,22 @@ class TakController:
             print(
                 "❌ Número inválido. Por favor, ingresa un número entero entre 1 y 5."
             )
+
+    def get_weight_config(self):
+        """
+        Pregunta al usuario la configuración de pesos a utilizar en la IA Minimax.
+        Retorna: (int) 1 o 2
+        """
+        while True:
+            print("\nElige configuración de pesos:")
+            print("  1. Configuración 1 (agresiva conectividad)")
+            print("  2. Configuración 2 (más balanceada)")
+            config_input = input("Opción (1 o 2) [por defecto 1]: ").strip()
+
+            if not config_input:
+                return 1
+
+            if config_input in ["1", "2"]:
+                return int(config_input)
+
+            print("❌ Opción inválida. Por favor, elige 1 o 2.")

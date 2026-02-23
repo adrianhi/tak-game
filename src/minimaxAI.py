@@ -7,7 +7,7 @@ import board
 
 
 class MinimaxAI:
-    def __init__(self, num_heuristics=5):
+    def __init__(self, num_heuristics=5, weight_config=1):
         self.nodes_explored = (
             0  # Mantengo este para compatibilidad retrospectiva si es necesario
         )
@@ -21,6 +21,23 @@ class MinimaxAI:
             self.h_mobility,
         ]
         self.active_heuristics = self.all_heuristics[:num_heuristics]
+
+        if weight_config == 1:
+            self.weights = {
+                "flats": 2,
+                "connected": 5,
+                "reserves": 1,
+                "center": 2,
+                "mobility": 1,
+            }
+        else:
+            self.weights = {
+                "flats": 4,
+                "connected": 3,
+                "reserves": 2,
+                "center": 4,
+                "mobility": 2,
+            }
 
     def choose_move(self, board, max_depth=3, max_time=5):
         """
@@ -217,8 +234,17 @@ class MinimaxAI:
                 return 0
 
         score = 0
-        for heuristic in self.active_heuristics:
-            score += heuristic(board, player)
+        if self.h_flats in self.active_heuristics:
+            score += self.weights["flats"] * self.h_flats(board, player)
+        if self.h_connected_group in self.active_heuristics:
+            score += self.weights["connected"] * self.h_connected_group(board, player)
+        if self.h_reserves in self.active_heuristics:
+            score += self.weights["reserves"] * self.h_reserves(board, player)
+        if self.h_center_control in self.active_heuristics:
+            score += self.weights["center"] * self.h_center_control(board, player)
+        if self.h_mobility in self.active_heuristics:
+            score += self.weights["mobility"] * self.h_mobility(board, player)
+
         return score
 
     # Heuristics
@@ -229,7 +255,7 @@ class MinimaxAI:
         opponent = "black" if player == "white" else "white"
         my_flats = board._count_visible_flats(player)
         opp_flats = board._count_visible_flats(opponent)
-        return 2 * (my_flats - opp_flats)
+        return my_flats - opp_flats
 
     def h_connected_group(self, board, player):
         """
@@ -238,7 +264,7 @@ class MinimaxAI:
         opponent = "black" if player == "white" else "white"
         my_group = board._largest_connected_group(player)
         opp_group = board._largest_connected_group(opponent)
-        return 5 * (my_group - opp_group)
+        return my_group - opp_group
 
     def h_reserves(self, board, player):
         """
@@ -247,7 +273,7 @@ class MinimaxAI:
         opponent = "black" if player == "white" else "white"
         my_reserve = sum(board.pieces[player].values())
         opp_reserve = sum(board.pieces[opponent].values())
-        return 1 * (my_reserve - opp_reserve)
+        return my_reserve - opp_reserve
 
     def h_center_control(self, board, player):
         """
@@ -266,7 +292,7 @@ class MinimaxAI:
                         score += val
                     else:
                         score -= val
-        return 2 * score
+        return score
 
     def h_mobility(self, board, player):
         """
@@ -282,4 +308,4 @@ class MinimaxAI:
                         my_stacks += 1
                     else:
                         opp_stacks += 1
-        return 1 * (my_stacks - opp_stacks)
+        return my_stacks - opp_stacks

@@ -45,7 +45,8 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
         depth_w = int(depth_w_str) if depth_w_str.isdigit() else 2
         time_w = controller.get_ai_time_limit()
         heuristics_w = controller.get_number_of_heuristics()
-        ai_white = MinimaxAI(num_heuristics=heuristics_w)
+        config_w = controller.get_weight_config()
+        ai_white = MinimaxAI(num_heuristics=heuristics_w, weight_config=config_w)
 
     print(f"\n--- Configuración para {jugador2_nombre} (Negras) ---")
     print("Tipo de IA:")
@@ -71,7 +72,8 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
         depth_b = int(depth_b_str) if depth_b_str.isdigit() else 2
         time_b = controller.get_ai_time_limit()
         heuristics_b = controller.get_number_of_heuristics()
-        ai_black = MinimaxAI(num_heuristics=heuristics_b)
+        config_b = controller.get_weight_config()
+        ai_black = MinimaxAI(num_heuristics=heuristics_b, weight_config=config_b)
 
     print("\n¡Comienza el duelo de inteligencias artificiales!\n")
 

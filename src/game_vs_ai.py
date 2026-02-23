@@ -66,7 +66,8 @@ def play_vs_ai_test():
             depth = int(depth_str)
 
         num_heuristics = controller.get_number_of_heuristics()
-        ai = MinimaxAI(num_heuristics=num_heuristics)
+        weight_config = controller.get_weight_config()
+        ai = MinimaxAI(num_heuristics=num_heuristics, weight_config=weight_config)
 
         # Configurar límite de tiempo después de tener el controlador
         max_time = controller.get_ai_time_limit()
