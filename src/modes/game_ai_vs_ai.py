@@ -1,11 +1,11 @@
 import time
-from board import TakBoard
-from controller import TakController
-from minimaxAI import MinimaxAI
-from randomAI import RandomAI
-from greedyAI import GreedyAI
-from worstAI import WorstAI
-from ui_manager import TakTerminalUI
+from core.board import TakBoard
+from controllers.controller import TakController
+from ia.minimaxAI import MinimaxAI
+from ia.randomAI import RandomAI
+from ia.greedyAI import GreedyAI
+from ia.worstAI import WorstAI
+from ui.ui_manager import TakTerminalUI
 
 
 def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):

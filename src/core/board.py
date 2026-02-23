@@ -1,6 +1,6 @@
 from collections import deque
 from copy import deepcopy
-from rules import TakRuleEngine
+from core.rules import TakRuleEngine
 
 
 class TakBoard:
