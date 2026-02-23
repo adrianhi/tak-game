@@ -2,6 +2,7 @@ import time
 from board import TakBoard
 from controller import TakController
 from minimaxAI import MinimaxAI
+from randomAI import RandomAI
 from ui_manager import TakTerminalUI
 
 
@@ -23,28 +24,40 @@ def play_vs_ai_test():
 
     ai_color = "black" if human_color == "white" else "white"
 
-    # Configurar profundidad
-    depth_str = input(
-        "Elige la profundidad de la IA (ej. 2, 3) [por defecto 2]: "
-    ).strip()
-    depth = 2
-    if depth_str.isdigit():
-        depth = int(depth_str)
-
-    print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
-    print(f"La IA ('{ai_color}') jugará con profundidad Minimax {depth}.\n")
-
     # Inicializar el estado del juego y los componentes MVC de consola
     board = TakBoard(size=5)
     ui = TakTerminalUI(board)
     controller = TakController(board)
 
-    num_heuristics = controller.get_number_of_heuristics()
-    ai = MinimaxAI(num_heuristics=num_heuristics)
+    print("\n--- Configuración de la IA ---")
+    print("Tipo de IA:")
+    print("  1. Minimax")
+    print("  2. Random")
+    ai_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
 
-    # Configurar límite de tiempo después de tener el controlador
-    max_time = controller.get_ai_time_limit()
-    print(f"La IA no tomará más de {max_time} segundos por turno.\n")
+    if ai_type == "2":
+        ai = RandomAI()
+        depth, max_time = 0, 0
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará de forma aleatoria.\n")
+    else:
+        # Configurar profundidad
+        depth_str = input(
+            "Elige la profundidad de la IA (ej. 2, 3) [por defecto 2]: "
+        ).strip()
+        depth = 2
+        if depth_str.isdigit():
+            depth = int(depth_str)
+
+        num_heuristics = controller.get_number_of_heuristics()
+        ai = MinimaxAI(num_heuristics=num_heuristics)
+
+        # Configurar límite de tiempo después de tener el controlador
+        max_time = controller.get_ai_time_limit()
+
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará con profundidad Minimax {depth}.")
+        print(f"La IA no tomará más de {max_time} segundos por turno.\n")
 
     # Bucle del juego
     while not board.is_terminal():

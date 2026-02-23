@@ -2,6 +2,7 @@ import time
 from board import TakBoard
 from controller import TakController
 from minimaxAI import MinimaxAI
+from randomAI import RandomAI
 from ui_manager import TakTerminalUI
 
 
@@ -17,18 +18,36 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     controller = TakController(board)
 
     print(f"\n--- Configuración para {jugador1_nombre} (Blancas) ---")
-    depth_w_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
-    depth_w = int(depth_w_str) if depth_w_str.isdigit() else 2
-    time_w = controller.get_ai_time_limit()
-    heuristics_w = controller.get_number_of_heuristics()
-    ai_white = MinimaxAI(num_heuristics=heuristics_w)
+    print("Tipo de IA:")
+    print("  1. Minimax")
+    print("  2. Random")
+    ai_w_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
+
+    if ai_w_type == "2":
+        ai_white = RandomAI()
+        depth_w, time_w = 0, 0
+    else:
+        depth_w_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
+        depth_w = int(depth_w_str) if depth_w_str.isdigit() else 2
+        time_w = controller.get_ai_time_limit()
+        heuristics_w = controller.get_number_of_heuristics()
+        ai_white = MinimaxAI(num_heuristics=heuristics_w)
 
     print(f"\n--- Configuración para {jugador2_nombre} (Negras) ---")
-    depth_b_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
-    depth_b = int(depth_b_str) if depth_b_str.isdigit() else 2
-    time_b = controller.get_ai_time_limit()
-    heuristics_b = controller.get_number_of_heuristics()
-    ai_black = MinimaxAI(num_heuristics=heuristics_b)
+    print("Tipo de IA:")
+    print("  1. Minimax")
+    print("  2. Random")
+    ai_b_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
+
+    if ai_b_type == "2":
+        ai_black = RandomAI()
+        depth_b, time_b = 0, 0
+    else:
+        depth_b_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
+        depth_b = int(depth_b_str) if depth_b_str.isdigit() else 2
+        time_b = controller.get_ai_time_limit()
+        heuristics_b = controller.get_number_of_heuristics()
+        ai_black = MinimaxAI(num_heuristics=heuristics_b)
 
     print("\n¡Comienza el duelo de inteligencias artificiales!\n")
 
