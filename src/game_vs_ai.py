@@ -140,14 +140,16 @@ def play_vs_ai_test():
     print("=" * 30)
 
     winner = board.get_winner()
-    if winner:
+    if winner in ("white", "black"):
         print(f"¡El ganador es el jugador {winner.upper()}!")
         if winner == human_color:
             print("¡Felicidades, ganaste contra la IA!")
         else:
             print("La IA ha ganado. ¡Mejor suerte la próxima!")
+    elif winner == "tie":
+        print("La partida terminó en empate.")
     else:
-        print("El juego ha terminado en empate o finalizado sin ganador definido.")
+        print("Juego finalizado sin resultado válido.")
 
 
 if __name__ == "__main__":

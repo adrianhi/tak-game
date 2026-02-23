@@ -13,6 +13,7 @@ import time
 
 # Importamos el modo contra la IA
 from game_vs_ai import play_vs_ai_test
+from game_ai_vs_ai import jugar_ai_vs_ai
 
 
 def jugar_pvp(jugador1, jugador2):
@@ -135,6 +136,8 @@ def main():
             elif modo == 2:
                 play_vs_ai_test()
             elif modo == 3:
+                jugar_ai_vs_ai()
+            elif modo == 4:
                 continue  # Vuelve al menú principal
 
         elif opcion == 2:  # Salir

@@ -37,12 +37,13 @@ def seleccionar_modo_juego():
         print("\n=== SELECCIONAR MODO DE JUEGO ===")
         print("1. Player vs Player")
         print("2. Player vs AI")
-        print("3. Volver")
+        print("3. AI vs AI")
+        print("4. Volver")
 
         opcion = input("Selecciona un modo: ").strip()
 
-        if opcion not in ["1", "2", "3"]:
-            print("Opción inválida. Por favor ingresa 1, 2 o 3.")
+        if opcion not in ["1", "2", "3", "4"]:
+            print("Opción inválida. Por favor ingresa 1, 2, 3 o 4.")
             continue
 
         return int(opcion)
