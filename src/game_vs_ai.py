@@ -3,6 +3,7 @@ from board import TakBoard
 from controller import TakController
 from minimaxAI import MinimaxAI
 from randomAI import RandomAI
+from greedyAI import GreedyAI
 from ui_manager import TakTerminalUI
 
 
@@ -33,13 +34,20 @@ def play_vs_ai_test():
     print("Tipo de IA:")
     print("  1. Minimax")
     print("  2. Random")
-    ai_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
+    print("  3. Greedy")
+    ai_type = input("Opción (1, 2 o 3) [por defecto 1]: ").strip()
 
     if ai_type == "2":
         ai = RandomAI()
         depth, max_time = 0, 0
         print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
         print(f"La IA ('{ai_color}') jugará de forma aleatoria.\n")
+    elif ai_type == "3":
+        dummy_minimax = MinimaxAI()
+        ai = GreedyAI(dummy_minimax.evaluate)
+        depth, max_time = 0, 0
+        print(f"\n¡Comienza el juego! Eres el jugador {human_color}.")
+        print(f"La IA ('{ai_color}') jugará de forma greedy (codiciosa).\n")
     else:
         # Configurar profundidad
         depth_str = input(

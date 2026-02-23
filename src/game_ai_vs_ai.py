@@ -3,6 +3,7 @@ from board import TakBoard
 from controller import TakController
 from minimaxAI import MinimaxAI
 from randomAI import RandomAI
+from greedyAI import GreedyAI
 from ui_manager import TakTerminalUI
 
 
@@ -21,10 +22,17 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     print("Tipo de IA:")
     print("  1. Minimax")
     print("  2. Random")
-    ai_w_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
+    print("  3. Greedy")
+    ai_w_type = input("Opción (1, 2 o 3) [por defecto 1]: ").strip()
 
     if ai_w_type == "2":
         ai_white = RandomAI()
+        depth_w, time_w = 0, 0
+    elif ai_w_type == "3":
+        # Necesitamos instanciar un dummy Minimax solo para sacar su eval, o usar la lógica
+        # Como GreedyAI pide `evaluation_function`, le pasamos el `evaluate` de Minimax
+        dummy_minimax = MinimaxAI()
+        ai_white = GreedyAI(dummy_minimax.evaluate)
         depth_w, time_w = 0, 0
     else:
         depth_w_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
@@ -37,10 +45,15 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
     print("Tipo de IA:")
     print("  1. Minimax")
     print("  2. Random")
-    ai_b_type = input("Opción (1 o 2) [por defecto 1]: ").strip()
+    print("  3. Greedy")
+    ai_b_type = input("Opción (1, 2 o 3) [por defecto 1]: ").strip()
 
     if ai_b_type == "2":
         ai_black = RandomAI()
+        depth_b, time_b = 0, 0
+    elif ai_b_type == "3":
+        dummy_minimax = MinimaxAI()
+        ai_black = GreedyAI(dummy_minimax.evaluate)
         depth_b, time_b = 0, 0
     else:
         depth_b_str = input("Elige la profundidad (ej. 2, 3) [por defecto 2]: ").strip()
@@ -110,12 +123,15 @@ def jugar_ai_vs_ai(jugador1_nombre="IA Blancas", jugador2_nombre="IA Negras"):
         print("El juego ha terminado en empate o finalizado sin ganador definido.")
 
     print("\nEstadísticas finales:")
-    print(
-        f"- {jugador1_nombre}: {ai_white.nodes_explored} nodos evaluados en el último turno."
-    )
-    print(
-        f"- {jugador2_nombre}: {ai_black.nodes_explored} nodos evaluados en el último turno."
-    )
+    if isinstance(ai_white, MinimaxAI):
+        print(f"- {jugador1_nombre}: {ai_white.nodes_explored} nodos evaluados.")
+    else:
+        print(f"- {jugador1_nombre}: No aplica (no usa Minimax).")
+
+    if isinstance(ai_black, MinimaxAI):
+        print(f"- {jugador2_nombre}: {ai_black.nodes_explored} nodos evaluados.")
+    else:
+        print(f"- {jugador2_nombre}: No aplica (no usa Minimax).")
 
 
 if __name__ == "__main__":
