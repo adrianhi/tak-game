@@ -1,10 +1,6 @@
 import numpy as np
 import time
 
-import board
-
-import board
-
 
 class MinimaxAI:
     def __init__(self, num_heuristics=5, weight_config=1):

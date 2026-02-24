@@ -1,19 +1,18 @@
-from bienvenida import bienvenida
-from Menu_Tak import (
+from ui.bienvenida import bienvenida
+from ui.Menu_Tak import (
     pedir_nombres,
     menu_principal,
     seleccionar_modo_juego,
     jugar_nuevamente,
 )
-from board import TakBoard
-from minimaxAI import MinimaxAI
-from ui_manager import TakTerminalUI
-from controller import TakController
+from core.board import TakBoard
+from ia.minimaxAI import MinimaxAI
+from ui.ui_manager import TakTerminalUI
+from controllers.controller import TakController
 import time
 
-# Importamos el modo contra la IA
-from game_vs_ai import play_vs_ai_test
-from game_ai_vs_ai import jugar_ai_vs_ai
+from modes.game_human_vs_ai import play_vs_ai_test
+from modes.game_ai_vs_ai import jugar_ai_vs_ai
 
 
 def jugar_pvp(jugador1, jugador2):
